@@ -1,5 +1,6 @@
 package ru.javawebinar.basejava.model;
 
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -14,8 +15,28 @@ public class Resume implements Comparable<Resume> {
 
     private final String fullName;
 
-    private Map<SectionType, Section> sections;
-    private Map<ContactType, Contact> contacts;
+    private Map<SectionType, Section> sections = new EnumMap<>(SectionType.class);
+
+    private Map<ContactType, String> contacts = new EnumMap<>(ContactType.class);
+
+
+    public void  addContact(ContactType contactType, String value) {
+        contacts.put(contactType, value);
+    }
+
+    public void  addSection(SectionType sectionType, Section section) {
+        sections.put(sectionType, section);
+    }
+
+    public String getContact(ContactType contactType){
+        return contacts.get(contactType);
+    }
+
+
+    public Section getSection(SectionType sectionType) {
+        return sections.get(sectionType);
+    }
+
 
     public Resume(String fullName) {
         this(UUID.randomUUID().toString(), fullName);
@@ -53,7 +74,7 @@ public class Resume implements Comparable<Resume> {
 
     @Override
     public String toString() {
-        return uuid + '(' + fullName + ')';
+        return uuid + " (" + fullName + ")";
     }
 
     @Override
@@ -61,4 +82,6 @@ public class Resume implements Comparable<Resume> {
         int cmp = fullName.compareTo(o.fullName);
         return cmp != 0 ? cmp : uuid.compareTo(o.uuid);
     }
+
+
 }
