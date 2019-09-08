@@ -3,7 +3,7 @@ package ru.javawebinar.basejava.model;
 import java.util.List;
 import java.util.Objects;
 
-public class TimelineSection extends Section {
+public class TimelineSection extends AbstractSection {
     private final List<TimelineItem> list;
 
     public TimelineSection(List<TimelineItem> list) {
