@@ -53,13 +53,13 @@ public class ResumeFromProperties {
             e.printStackTrace();
         }
 
-        List<TimelineItem> list;
+        List<Organization> list;
         list = readList(prop, count);
-        resume.addSection(sectionType, new TimelineSection(list));
+        resume.addSection(sectionType, new OrganizationSection(list));
     }
 
-    private List<TimelineItem> readList(Properties prop, int count) {
-        List<TimelineItem> list = new ArrayList<>();
+    private List<Organization> readList(Properties prop, int count) {
+        List<Organization> list = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/uuuu");
 
         for (int i = 1; i <= count; i++) {
@@ -71,7 +71,7 @@ public class ResumeFromProperties {
             Integer eyear = Integer.valueOf(prop.getProperty(prefix + "start").substring(3,7));
             Integer emonth = Integer.valueOf(prop.getProperty(prefix + "start").substring(0,2));
 
-            TimelineItem item = new TimelineItem(
+            Organization item = new Organization(
                     prop.getProperty(prefix + "name"),
                     prop.getProperty(prefix + "url"),
 //                    YearMonth.parse(prop.getProperty(prefix + "start"), formatter),

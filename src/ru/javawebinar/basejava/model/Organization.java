@@ -3,14 +3,14 @@ package ru.javawebinar.basejava.model;
 import java.time.YearMonth;
 import java.util.Objects;
 
-public class TimelineItem {
+public class Organization {
 
     private final String name;
     private final YearMonth start;
     private final YearMonth end;
     private final String html;
 
-    public TimelineItem(String name, String url, YearMonth start, YearMonth end, String html) {
+    public Organization(String name, String url, YearMonth start, YearMonth end, String html) {
         Objects.requireNonNull(name, "title must not be null");
         this.name = name;
         this.start = start;
@@ -22,7 +22,7 @@ public class TimelineItem {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TimelineItem that = (TimelineItem) o;
+        Organization that = (Organization) o;
         return  name.equals(that.name) &&
                 Objects.equals(start, that.start) &&
                 Objects.equals(end, that.end) &&
@@ -36,7 +36,7 @@ public class TimelineItem {
 
     @Override
     public String toString() {
-        return "TimelineItem{" +
+        return "Organization{" +
                 ", name='" + name + '\'' +
                 ", start=" + start +
                 ", end=" + end +
