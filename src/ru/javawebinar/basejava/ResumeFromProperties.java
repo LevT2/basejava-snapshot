@@ -92,11 +92,11 @@ public class ResumeFromProperties {
 
         resume.addContact(ContactType.PHONE, prop.getProperty("contact.phone"));
         resume.addContact(ContactType.SKYPE, prop.getProperty("contact.skype"));
-        resume.addContact(ContactType.EMAIL, prop.getProperty("contact.email"));
+        resume.addContact(ContactType.MAIL, prop.getProperty("contact.email"));
         resume.addContact(ContactType.LINKEDIN, prop.getProperty("contact.linkedin"));
         resume.addContact(ContactType.GITHUB, prop.getProperty("contact.github"));
-        resume.addContact(ContactType.SO, prop.getProperty("contact.so"));
-        resume.addContact(ContactType.HOMEPAGE, prop.getProperty("contact.homepage"));
+        resume.addContact(ContactType.STATCKOVERFLOW, prop.getProperty("contact.so"));
+        resume.addContact(ContactType.HOME_PAGE, prop.getProperty("contact.homepage"));
 
         resume.addSection(SectionType.OBJECTIVE, new TextSection(prop.getProperty("objective")));
         resume.addSection(SectionType.PERSONAL, new TextSection(prop.getProperty("personal")));
