@@ -5,8 +5,13 @@ import ru.javawebinar.basejava.model.Resume;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FileStorage extends AbstractStorage<File>  {
     private File directory;
@@ -24,12 +29,13 @@ public class FileStorage extends AbstractStorage<File>  {
 
     @Override
     public void clear() {
-
+        Arrays.stream(doListFiles())
+                .forEach(this::doDelete);
     }
 
     @Override
     public int size() {
-        return 0;
+        return doListFiles().length;
     }
 
     @Override
@@ -39,7 +45,11 @@ public class FileStorage extends AbstractStorage<File>  {
 
     @Override
     protected void doUpdate(Resume r, File file) {
-
+        try {
+            doWrite(r, file);
+        } catch (IOException e) {
+            throw new StorageException("IO error", file.getName(), e);
+        }
     }
 
     @Override
@@ -57,20 +67,41 @@ public class FileStorage extends AbstractStorage<File>  {
         }
     }
 
-    protected void doWrite(Resume r, File file) throws IOException {};  // was abstract
+    protected void doWrite(Resume r, File file) throws IOException {};    // was abstract, not implemented
+
+    protected Resume doRead(File file) throws IOException {             //added but not implemented
+        return null;
+    };
 
     @Override
     protected Resume doGet(File file) {
-        return null;
+        try {
+            return doRead(file);
+        } catch (IOException e) {
+            throw new StorageException("Error reading file", file.getName(), e);
+        }
+
     }
 
     @Override
     protected void doDelete(File file) {
-
+        if (!file.delete()) {
+            throw new StorageException("Error deleting file", file.getName());
+        }
     }
 
     @Override
     protected List<Resume> doCopyAll() {
-        return null;
+        return Arrays.stream(doListFiles()).
+                map(this::doGet).
+                collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private File[] doListFiles(){
+        File[] files = directory.listFiles();
+        if(files == null) {
+            throw new StorageException("Error listing directory", directory.getName());
+        }
+        return files;
     }
 }

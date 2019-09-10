@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -37,7 +38,7 @@ public class ResumeFromProperties {
 
         String educationProperties = path + "testdata.education.properties";
         try (InputStream inputStream = new FileInputStream(educationProperties)) {
-            readChildProperties(inputStream, SectionType.EDUCATION, 7);
+            readChildProperties(inputStream, SectionType.EDUCATION, 6);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,25 +65,46 @@ public class ResumeFromProperties {
 
         for (int i = 1; i <= count; i++) {
             String prefix = String.format("%d", i) + ".";
-
-            Integer syear = Integer.valueOf(prop.getProperty(prefix + "start").substring(3,7));
-            Integer smonth = Integer.valueOf(prop.getProperty(prefix + "start").substring(0,2));
-
-            Integer eyear = Integer.valueOf(prop.getProperty(prefix + "start").substring(3,7));
-            Integer emonth = Integer.valueOf(prop.getProperty(prefix + "start").substring(0,2));
-
-            Organization item = new Organization(
+            Organization item = null;
+            item = new Organization(
                     prop.getProperty(prefix + "name"),
-                    prop.getProperty(prefix + "url"),
-//                    YearMonth.parse(prop.getProperty(prefix + "start"), formatter),
-//                    YearMonth.parse(prop.getProperty(prefix + "end"), formatter),
-                    YearMonth.of(syear,smonth),
-                    YearMonth.of(eyear,emonth),
-                    prop.getProperty(prefix + "html")
+                    prop.getProperty(prefix + "url")
             );
+            if (prop.getProperty(prefix + "title") != null) {
+                readRecord(prop, prefix, item);
+            } else {
+                for (int num = 1; num <= count; num++) {
+                    // returns fast with no action if no such record
+                    readRecord(prop, prefix + num + ".", item);
+                }
+            }
             list.add(item);
         }
         return list;
+    }
+
+    private void readRecord(Properties prop, String prefix, Organization item) {
+        // returns fast with no action if no such record
+        if (null == prop.getProperty(prefix + "start")) return;
+
+        Integer syear = Integer.valueOf(prop.getProperty(prefix + "start").substring(3, 7));
+        Integer smonth = Integer.valueOf(prop.getProperty(prefix + "start").substring(0, 2));
+
+        Integer eyear = LocalDate.now().getYear();
+        Integer emonth = LocalDate.now().getMonthValue();
+
+        if (prop.getProperty(prefix + "end").getBytes().length != 0) {
+            eyear = Integer.valueOf(prop.getProperty(prefix + "end").substring(3, 7));
+            emonth = Integer.valueOf(prop.getProperty(prefix + "end").substring(0, 2));
+        }
+
+        Record record = new Record(
+                YearMonth.of(syear, smonth),
+                YearMonth.of(eyear, emonth),
+                prop.getProperty(prefix + "title"),
+                prop.getProperty(prefix + "description")
+        );
+        item.addRecord(record);
     }
 
     private void readParentProperties(InputStream inputStream) throws IOException {
