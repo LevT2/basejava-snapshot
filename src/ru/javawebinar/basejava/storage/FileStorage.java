@@ -13,7 +13,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class FileStorage extends AbstractStorage<File>  {
+public class FileStorage extends AbstractStorage<File> {
     private File directory;
 
     protected FileStorage(File directory) {
@@ -44,9 +44,9 @@ public class FileStorage extends AbstractStorage<File>  {
     }
 
     @Override
-    protected void doUpdate(Resume r, File file) {
+    protected void doUpdate(Resume resume, File file) {
         try {
-            doWrite(r, file);
+            doWrite(resume, file);
         } catch (IOException e) {
             throw new StorageException("IO error", file.getName(), e);
         }
@@ -58,20 +58,22 @@ public class FileStorage extends AbstractStorage<File>  {
     }
 
     @Override
-    protected void doSave(Resume r, File file) {
+    protected void doSave(Resume resume, File file) {
         try {
             file.createNewFile();
-            doWrite(r, file);
         } catch (IOException e) {
-            throw new StorageException("IO error", file.getName(), e);
+            throw new StorageException("Couldn't create file " + file.getAbsolutePath(), file.getName(), e);
         }
+        doUpdate(resume, file);
     }
 
-    protected void doWrite(Resume r, File file) throws IOException {};    // was abstract, not implemented
+    protected void doWrite(Resume r, File file) throws IOException { }  ;    // was abstract, not implemented
 
-    protected Resume doRead(File file) throws IOException {             //added but not implemented
+    protected Resume doRead(File file) throws IOException {      //added but not implemented
         return null;
-    };
+    }
+
+    ;
 
     @Override
     protected Resume doGet(File file) {
@@ -97,9 +99,9 @@ public class FileStorage extends AbstractStorage<File>  {
                 collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private File[] doListFiles(){
+    private File[] doListFiles() {
         File[] files = directory.listFiles();
-        if(files == null) {
+        if (files == null) {
             throw new StorageException("Error listing directory", directory.getName());
         }
         return files;
