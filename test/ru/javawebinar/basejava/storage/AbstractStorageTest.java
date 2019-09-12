@@ -45,11 +45,6 @@ public abstract class AbstractStorageTest {
         storage.save(RESUME_3);
     }
 
-    @After
-    public void tearDown() throws Exception{
-        storage.clear();
-    }
-
     @Test
     public void size() throws Exception {
         assertSize(3);

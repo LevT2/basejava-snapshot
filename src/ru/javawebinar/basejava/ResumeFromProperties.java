@@ -71,11 +71,11 @@ public class ResumeFromProperties {
                     prop.getProperty(prefix + "url")
             );
             if (prop.getProperty(prefix + "title") != null) {
-                readRecord(prop, prefix, item);
+                readPosition(prop, prefix, item);
             } else {
                 for (int num = 1; num <= count; num++) {
                     // returns fast with no action if no such record
-                    readRecord(prop, prefix + num + ".", item);
+                    readPosition(prop, prefix + num + ".", item);
                 }
             }
             list.add(item);
@@ -83,7 +83,7 @@ public class ResumeFromProperties {
         return list;
     }
 
-    private void readRecord(Properties prop, String prefix, Organization item) {
+    private void readPosition(Properties prop, String prefix, Organization item) {
         // returns fast with no action if no such record
         if (null == prop.getProperty(prefix + "start")) return;
 
@@ -98,13 +98,13 @@ public class ResumeFromProperties {
             emonth = Integer.valueOf(prop.getProperty(prefix + "end").substring(0, 2));
         }
 
-        Record record = new Record(
+        Organization.Position position = new Organization.Position(
                 YearMonth.of(syear, smonth),
                 YearMonth.of(eyear, emonth),
                 prop.getProperty(prefix + "title"),
                 prop.getProperty(prefix + "description")
         );
-        item.addRecord(record);
+        item.addRecord(position);
     }
 
     private void readParentProperties(InputStream inputStream) throws IOException {
