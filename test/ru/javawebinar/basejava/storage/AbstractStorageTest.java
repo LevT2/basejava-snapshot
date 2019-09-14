@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractStorageTest {
 
-    protected static final File STORAGE_DIR = new File(System.getProperty("user.dir") + "/filedb");
+    protected static final String STORAGE_DIR = System.getProperty("user.dir") + "/filedb";
 
     protected Storage storage;
 
