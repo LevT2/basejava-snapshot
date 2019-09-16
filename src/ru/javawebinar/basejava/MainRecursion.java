@@ -20,6 +20,7 @@ public class MainRecursion {
     }
 
     private static void prettyPrint(Path path) throws IOException {
+
         Files.walk(path).
                 filter(Files::isDirectory).
                 forEach(childpath -> {
