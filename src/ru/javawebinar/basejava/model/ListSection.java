@@ -9,6 +9,9 @@ public class ListSection extends AbstractSection {
 
     private List<String> list;
 
+    public ListSection() {
+    }
+
     public ListSection(String... items) {
         this(Arrays.asList(items));
     }

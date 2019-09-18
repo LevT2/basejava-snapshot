@@ -2,6 +2,7 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
+import ru.javawebinar.basejava.storage.serializer.StreamSerializer;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -15,16 +16,18 @@ import java.util.stream.Stream;
 public class PathStorage extends AbstractStorage<Path> {
     private Path directory;
 
-    private StorageStrategy storageStrategy;
+    private StreamSerializer streamSerializer;
 
-    protected PathStorage(String dir, StorageStrategy strategy) {
+    protected PathStorage(String dir, StreamSerializer streamSerializer) {
+        Objects.requireNonNull(dir, "directory must not be null");
+
+        this.streamSerializer = streamSerializer;
         directory = Paths.get(dir);
-        Objects.requireNonNull(directory, "directory must not be null");
         if (!Files.isDirectory(directory) || !Files.isWritable(directory)) {
             throw new IllegalArgumentException(dir + " is not directory or is not writable");
         }
-        this.storageStrategy = strategy;
     }
+
 
     @Override
     public void clear() {
@@ -44,7 +47,7 @@ public class PathStorage extends AbstractStorage<Path> {
     @Override
     protected void doUpdate(Resume resume, Path path) {
         try {
-            storageStrategy.doWrite(resume, new BufferedOutputStream(Files.newOutputStream(path)));
+            streamSerializer.doWrite(resume, new BufferedOutputStream(Files.newOutputStream(path)));
         } catch (IOException e) {
             throw new StorageException("Path write error", resume.getUuid(), e);
         }
@@ -69,7 +72,7 @@ public class PathStorage extends AbstractStorage<Path> {
     @Override
     protected Resume doGet(Path path) {
         try {
-            return storageStrategy.doRead(new BufferedInputStream(Files.newInputStream(path)));
+            return streamSerializer.doRead(new BufferedInputStream(Files.newInputStream(path)));
         } catch (IOException e) {
             throw new StorageException("Cannot read file", getFileName(path), e);
         }

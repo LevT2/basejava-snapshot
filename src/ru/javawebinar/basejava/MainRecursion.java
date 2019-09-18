@@ -16,23 +16,24 @@ public class MainRecursion {
 
     public static void main(String[] args) throws IOException {
         Path path = Paths.get(getProperty("user.dir"), "src");
-        prettyPrint(path);
+//        prettyPrint(path);
     }
 
-    private static void prettyPrint(Path path) throws IOException {
-
-        Files.walk(path).
-                filter(Files::isDirectory).
-                forEach(childpath -> {
-                    System.out.println(childpath);
-                    try (var files = Files.newDirectoryStream(childpath, Files::isRegularFile)) {
-                        files.forEach(file -> {
-                            System.out.print(" ".repeat(file.getParent().toString().length()));
-                            System.out.println(file.getFileName().toString());
-                        });
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-    }
+// requires higher java incompatible with JAXB
+//    private static void prettyPrint(Path path) throws IOException {
+//
+//        Files.walk(path).
+//                filter(Files::isDirectory).
+//                forEach(childpath -> {
+//                    System.out.println(childpath);
+//                    try (var files = Files.newDirectoryStream(childpath, Files::isRegularFile)) {
+//                        files.forEach(file -> {
+//                            System.out.print(" ".repeat(file.getParent().toString().length()));
+//                            System.out.println(file.getFileName().toString());
+//                        });
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                });
+//    }
 }
