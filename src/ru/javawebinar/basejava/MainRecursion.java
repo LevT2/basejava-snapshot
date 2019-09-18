@@ -26,7 +26,7 @@ public class MainRecursion {
 //                filter(Files::isDirectory).
 //                forEach(childpath -> {
 //                    System.out.println(childpath);
-//                    try (var files = Files.newDirectoryStream(childpath, Files::isRegularFile)) {
+//                    try ( DirectoryStream files= Files.newDirectoryStream(childpath, Files::isRegularFile)) {
 //                        files.forEach(file -> {
 //                            System.out.print(" ".repeat(file.getParent().toString().length()));
 //                            System.out.println(file.getFileName().toString());
