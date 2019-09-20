@@ -1,10 +1,14 @@
 package ru.javawebinar.basejava.model;
 
+import ru.javawebinar.basejava.storage.serializer.Storable;
 import ru.javawebinar.basejava.util.YearMonthAdapter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.Month;
 import java.time.YearMonth;
@@ -15,9 +19,10 @@ import java.util.Objects;
 
 import static ru.javawebinar.basejava.util.DateUtil.NOW;
 import static ru.javawebinar.basejava.util.DateUtil.of;
+import static ru.javawebinar.basejava.util.Util.nullString;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Organization implements Serializable {
+public class Organization implements Serializable, Storable {
     private static final long serialVersionUID = 1L;
 
     private String name;
@@ -60,6 +65,38 @@ public class Organization implements Serializable {
     @Override
     public String toString() {
         return  "\n" + name + " : " + positions.toString();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    @Override
+    public void readData(DataInputStream in) throws IOException {
+        int size = in.readInt();
+        for (int i=0; i< size; i++){
+            YearMonth start = YearMonth.parse(in.readUTF());
+            YearMonth end = YearMonth.parse(in.readUTF());
+            String title = in.readUTF();
+            String description = in.readUTF();
+
+            addRecord(new Position(start, end, title, description));
+        }
+    }
+
+    @Override
+    public void writeData(DataOutputStream out) throws IOException {
+        out.writeInt(positions.size());
+        for (Position position : positions) {
+            out.writeUTF(position.start.toString());
+            out.writeUTF(position.end.toString());
+            out.writeUTF(position.title);
+            out.writeUTF(nullString(position.description));
+        }
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)

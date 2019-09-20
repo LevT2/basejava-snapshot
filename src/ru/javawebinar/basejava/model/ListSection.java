@@ -1,5 +1,6 @@
 package ru.javawebinar.basejava.model;
 
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -42,5 +43,22 @@ public class ListSection extends Section {
     @Override
     public int hashCode() {
         return Objects.hash(list);
+    }
+
+
+    @Override
+    public void readData(DataInputStream in) throws IOException {
+        int size = in.readInt();
+        for (int i=0; i< size; i++){
+            list.add(in.readUTF());
+        }
+    }
+
+    @Override
+    public void writeData(DataOutputStream out) throws IOException {
+        out.writeInt(list.size());
+        for (String item : list) {
+            out.writeUTF(item);
+        }
     }
 }
