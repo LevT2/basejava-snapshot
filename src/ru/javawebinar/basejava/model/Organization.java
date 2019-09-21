@@ -33,6 +33,11 @@ public class Organization implements Serializable {
         this.positions = Arrays.asList(positions);
     }
 
+    public Organization(String name, String url, List<Position> positions) {
+        this(name, url);
+        this.positions = positions;
+    }
+
     public Organization(String name, String url){
         this.name = name;
         this.url = url;
@@ -59,7 +64,19 @@ public class Organization implements Serializable {
 
     @Override
     public String toString() {
-        return  "\n" + name + " : " + positions.toString();
+        return  name + " : " + positions.toString();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public List<Position> getPositions() {
+        return positions;
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -109,6 +126,11 @@ public class Organization implements Serializable {
         }
 
         @Override
+        public String toString(){
+            return title;
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -122,11 +144,6 @@ public class Organization implements Serializable {
         @Override
         public int hashCode() {
             return Objects.hash(start, end, title, description);
-        }
-
-        @Override
-        public String toString(){
-            return title;
         }
     }
 }

@@ -100,11 +100,11 @@ public class Resume implements Comparable<Resume>, Serializable {
 
     @Override
     public String toString() {
-        return "Resume{" +
+        return "\nResume{" +
                 "uuid='" + uuid + '\'' +
                 ", fullName='" + fullName + '\'' +
-                ", sections=" + sections +
-                ", contacts=" + contacts +
+                "\n\tcontacts=" + contacts +
+                "\n\tsections=" + sections +
                 '}';
     }
 }

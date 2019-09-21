@@ -4,7 +4,10 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
+import ru.javawebinar.basejava.model.OrganizationSection;
 import ru.javawebinar.basejava.model.Resume;
+import ru.javawebinar.basejava.model.Section;
+import ru.javawebinar.basejava.model.SectionType;
 
 import java.io.File;
 import java.util.Arrays;
@@ -18,7 +21,6 @@ public abstract class AbstractStorageTest {
     protected static final File STORAGE_DIR = new File(System.getProperty("user.dir") + "/filedb");
 
     protected Storage storage;
-
 
 
     protected AbstractStorageTest(Storage storage) {
@@ -90,8 +92,9 @@ public abstract class AbstractStorageTest {
     @Test
     public void get() throws Exception {
         assertGet(R1);
-        assertGet(R2);
-        assertGet(R3);
+        assertPositionListEquals(R1);
+//        assertGet(R2);
+//        assertGet(R3);
     }
 
     @Test(expected = NotExistStorageException.class)
@@ -100,8 +103,24 @@ public abstract class AbstractStorageTest {
     }
 
     private void assertGet(Resume r) {
+//        Resume actual = storage.get(r.getUuid());
+//        assertEquals(r.getUuid(), actual.getUuid());
+//        assertEquals(r.getContacts(), actual.getContacts());
+//        assertEquals(r.getSections().get(SectionType.ACHIEVEMENT), actual.getSections().get(SectionType.ACHIEVEMENT));
+//        assertEquals(r.getSections().get(SectionType.EXPERIENCE), actual.getSections().get(SectionType.EXPERIENCE));
+//        OrganizationSection expected = (OrganizationSection) r.getSections().get(SectionType.EXPERIENCE);
+//        OrganizationSection actual1 = (OrganizationSection) actual.getSections().get(SectionType.EXPERIENCE);
+//
+//        assertEquals(expected.getList().get(0), actual1.getList().get(0));
         assertEquals(r, storage.get(r.getUuid()));
     }
+
+    private void assertPositionListEquals(Resume r) {
+        OrganizationSection expected = (OrganizationSection) r.getSections().get(SectionType.EXPERIENCE);
+        OrganizationSection actual = (OrganizationSection) storage.get(r.getUuid()).getSections().get(SectionType.EXPERIENCE);
+        assertEquals(expected.getList().get(0), actual.getList().get(0));
+    }
+
 
     private void assertSize(int size) {
         assertEquals(size, storage.size());

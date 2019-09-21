@@ -40,4 +40,8 @@ public class TextSection extends Section {
     public int hashCode() {
         return text.hashCode();
     }
+
+    public void setText(String text) {
+        this.text = text;
+    }
 }
