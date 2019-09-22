@@ -1,6 +1,5 @@
 package ru.javawebinar.basejava.storage.serializer;
 
-import com.sun.org.apache.xpath.internal.operations.Or;
 import ru.javawebinar.basejava.model.*;
 
 import java.io.*;
@@ -36,8 +35,8 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
     private void writeSection(DataOutputStream dos, Section section, SectionType type) throws IOException {
-        String className = section.getClass().getName();
-//        dos.writeUTF(className);
+
+        dos.writeUTF(type.name());
 
         switch (type) {
             case OBJECTIVE:
@@ -65,7 +64,7 @@ public class DataStreamSerializer implements StreamSerializer {
                     dos.writeInt(positions.size());
                     for (Organization.Position position : positions) {
                         dos.writeUTF(position.getStart().toString());
-                        dos.writeUTF(position.getStart().toString());
+                        dos.writeUTF(position.getEnd().toString());
                         dos.writeUTF(position.getTitle());
                         dos.writeUTF(wrapNull(position.getDescription()));
                     }
@@ -114,9 +113,10 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
 
-    private Section readSection(DataInputStream dis, Section section, SectionType type) throws IOException {
+    private Section readSection(DataInputStream dis, Section section, SectionType type1) throws IOException {
         String className = section.getClass().getName();
-//        System.out.printf("===> " + className);
+
+        SectionType type = SectionType.valueOf(dis.readUTF());
 
         int size;
         switch (type) {
@@ -155,9 +155,7 @@ public class DataStreamSerializer implements StreamSerializer {
                                 start,end,title,desc
                         );
                         organization.addRecord(position);
-//                        positions.add(position);
                     }
-//                    Organization organization = new Organization(name, url, positions);
                     organizationSection.getList().add(organization);
                 }
                 return organizationSection;

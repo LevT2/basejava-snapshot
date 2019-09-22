@@ -102,17 +102,8 @@ public abstract class AbstractStorageTest {
         storage.get("dummy");
     }
 
-    private void assertGet(Resume r) {
-//        Resume actual = storage.get(r.getUuid());
-//        assertEquals(r.getUuid(), actual.getUuid());
-//        assertEquals(r.getContacts(), actual.getContacts());
-//        assertEquals(r.getSections().get(SectionType.ACHIEVEMENT), actual.getSections().get(SectionType.ACHIEVEMENT));
-//        assertEquals(r.getSections().get(SectionType.EXPERIENCE), actual.getSections().get(SectionType.EXPERIENCE));
-//        OrganizationSection expected = (OrganizationSection) r.getSections().get(SectionType.EXPERIENCE);
-//        OrganizationSection actual1 = (OrganizationSection) actual.getSections().get(SectionType.EXPERIENCE);
-//
-//        assertEquals(expected.getList().get(0), actual1.getList().get(0));
-        assertEquals(r, storage.get(r.getUuid()));
+    private void assertGet(Resume resume) {
+        assertEquals(resume, storage.get(resume.getUuid()));
     }
 
     private void assertPositionListEquals(Resume r) {
