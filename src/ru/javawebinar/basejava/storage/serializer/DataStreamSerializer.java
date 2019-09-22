@@ -21,14 +21,11 @@ public class DataStreamSerializer implements StreamSerializer {
                 dos.writeUTF(entry.getKey().name());
                 dos.writeUTF(entry.getValue());
             }
-            // TODO implements sections
 
             Map<SectionType, Section> sections = r.getSections();
             dos.writeInt(sections.size());
             for (Map.Entry<SectionType, Section> entry : sections.entrySet()) {
-                dos.writeUTF(entry.getValue().getClass().getName());
-                dos.writeUTF(entry.getKey().name());   //
-
+                dos.writeUTF(entry.getKey().name());
                 writeSection(dos, entry.getValue(), entry.getKey());
             }
         }
@@ -69,7 +66,6 @@ public class DataStreamSerializer implements StreamSerializer {
                         dos.writeUTF(wrapNull(position.getDescription()));
                     }
                 }
-
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + type);
@@ -87,48 +83,33 @@ public class DataStreamSerializer implements StreamSerializer {
                 resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
             }
 
-            // TODO implements sections
             int sectionSize = dis.readInt();
             for (int i = 0; i < sectionSize; i++) {
-                String className = dis.readUTF();
                 String enumValue = dis.readUTF();
-                System.out.println("==>>" + className + "  " + enumValue);
-
                 SectionType sectionType = SectionType.valueOf(enumValue);
-                Class aClass;
-                try {
-                    aClass = Class.forName(className);
-                } catch (ClassNotFoundException e) {
-                    throw new IOException("Could not find class: " + className);
-                }
-                Section section = (Section) aClass.newInstance();
 
-                section = readSection(dis, section, sectionType);
+                Section section = readSection(dis);
                 resume.addSection(sectionType, section);
             }
             return resume;
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new IOException("Class loading failed", e);
         }
     }
 
 
-    private Section readSection(DataInputStream dis, Section section, SectionType type1) throws IOException {
-        String className = section.getClass().getName();
-
+    private Section readSection(DataInputStream dis) throws IOException {
         SectionType type = SectionType.valueOf(dis.readUTF());
 
         int size;
         switch (type) {
             case OBJECTIVE:
             case PERSONAL:
-                TextSection textSection = (TextSection) section;
+                TextSection textSection = new TextSection();
                 textSection.setText(dis.readUTF());
                 return textSection;
 
             case ACHIEVEMENT:
             case QUALIFICATIONS:
-                ListSection listSection = (ListSection) section;
+                ListSection listSection = new ListSection();
                 size = dis.readInt();
                 for (int i = 0; i < size ; i++) {
                     listSection.getList().add(dis.readUTF());
@@ -137,7 +118,7 @@ public class DataStreamSerializer implements StreamSerializer {
 
             case EDUCATION:
             case EXPERIENCE:
-                OrganizationSection organizationSection = (OrganizationSection) section;
+                OrganizationSection organizationSection = new OrganizationSection();
                 size = dis.readInt();
                 for (int i = 0; i < size ; i++) {
                     String name = dis.readUTF();
