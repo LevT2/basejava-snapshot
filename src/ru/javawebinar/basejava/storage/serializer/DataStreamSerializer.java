@@ -5,9 +5,6 @@ import ru.javawebinar.basejava.model.*;
 import java.io.*;
 import java.time.YearMonth;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 
 @FunctionalInterface
 interface ThrowingConsumer<T> {
@@ -16,23 +13,13 @@ interface ThrowingConsumer<T> {
 
 public class DataStreamSerializer implements StreamSerializer {
 
-    private <T> void forEachCustom(Collection<T> collection, ThrowingConsumer<? super T> action) throws IOException {
+    private <T> void writeCollection(DataOutputStream dos, Collection<T> collection, ThrowingConsumer<? super T> action) throws IOException {
         Objects.requireNonNull(action);
-        for (T t : collection) {
-            action.accept(t);
-        }
-    }
-
-    private <T> void writeCollection(DataOutputStream dos, Supplier<Collection<T>> method, ThrowingConsumer<? super T> action) throws IOException {
-        Objects.requireNonNull(action);
-
-        Collection<T> collection = method.get();
         dos.writeInt(collection.size());
         for (T t : collection) {
             action.accept(t);
         }
     }
-
 
     @Override
     public void doWrite(Resume r, OutputStream os) throws IOException {
@@ -40,26 +27,17 @@ public class DataStreamSerializer implements StreamSerializer {
             dos.writeUTF(r.getUuid());
             dos.writeUTF(r.getFullName());
 
-            // не выходит
-//            writeCollection(dos, r::getContacts, t -> {
-//
-//            })
-
-
             Map<ContactType, String> contacts = r.getContacts();
-            dos.writeInt(contacts.size());
-            forEachCustom(contacts.entrySet(), entry -> {
+            writeCollection(dos, contacts.entrySet(), entry -> {
                 dos.writeUTF(entry.getKey().name());
                 dos.writeUTF(entry.getValue());
             });
 
             Map<SectionType, Section> sections = r.getSections();
-            dos.writeInt(sections.size());
-            forEachCustom(sections.entrySet(), entry -> {
+            writeCollection(dos, sections.entrySet(), entry -> {
                 dos.writeUTF(entry.getKey().name());
                 writeSection(dos, entry.getValue(), entry.getKey());
             });
-
         }
     }
 
@@ -74,29 +52,23 @@ public class DataStreamSerializer implements StreamSerializer {
             case ACHIEVEMENT:
             case QUALIFICATIONS:
                 ListSection listSection = (ListSection) section;
-                dos.writeInt(listSection.getList().size());
-                forEachCustom(listSection.getList(), dos::writeUTF);
+                writeCollection(dos, listSection.getList(), dos::writeUTF);
                 break;
 
             case EXPERIENCE:
             case EDUCATION:
                 OrganizationSection organizationSection = (OrganizationSection) section;
-                dos.writeInt(organizationSection.getList().size());
-
-                forEachCustom(organizationSection.getList(), organization -> {
+                writeCollection(dos, organizationSection.getList(), organization -> {
                     dos.writeUTF(organization.getName());
                     dos.writeUTF(wrapNull(organization.getUrl()));
 
-                    List<Organization.Position> positions = organization.getPositions();
-                    dos.writeInt(positions.size());
-
-                    forEachCustom(positions, position -> {
+                    writeCollection(dos, organization.getPositions(), position -> {
                         dos.writeUTF(position.getStart().toString());
                         dos.writeUTF(position.getEnd().toString());
                         dos.writeUTF(position.getTitle());
                         dos.writeUTF(wrapNull(position.getDescription()));
-                    });
-                });
+                    } );
+                } );
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + type);
