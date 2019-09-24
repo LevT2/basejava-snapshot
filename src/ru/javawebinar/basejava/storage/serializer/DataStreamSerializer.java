@@ -1,17 +1,25 @@
 package ru.javawebinar.basejava.storage.serializer;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import ru.javawebinar.basejava.model.*;
 
 import java.io.*;
 import java.time.YearMonth;
 import java.util.*;
+import java.util.function.Supplier;
 
-@FunctionalInterface
-interface ThrowingConsumer<T> {
-    void accept(T t) throws IOException;
-}
 
 public class DataStreamSerializer implements StreamSerializer {
+
+    @FunctionalInterface
+    interface ThrowingConsumer<T> {
+        void accept(T t) throws IOException;
+    }
+
+    @FunctionalInterface
+    interface ThrowingSupplier<T> {
+        T get() throws IOException;
+    }
 
     private <T> void writeCollection(DataOutputStream dos, Collection<T> collection, ThrowingConsumer<? super T> action) throws IOException {
         Objects.requireNonNull(action);
@@ -20,6 +28,23 @@ public class DataStreamSerializer implements StreamSerializer {
             action.accept(t);
         }
     }
+
+//    private String readString(DataInputStream dis, ThrowingSupplier<String> supplier) throws IOException {
+//        int size = dis.readInt();
+//        for (int i = 0; i < size; i++) {
+//            return supplier.get();
+//        }
+//    }
+
+    private <T> List<T> readCollection(DataInputStream dis, ThrowingSupplier<? extends T> supplier) throws IOException {
+        int size = dis.readInt();
+        List<T> list = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            list.add(supplier.get());
+        }
+        return list;
+    }
+
 
     @Override
     public void doWrite(Resume r, OutputStream os) throws IOException {
@@ -67,8 +92,8 @@ public class DataStreamSerializer implements StreamSerializer {
                         dos.writeUTF(position.getEnd().toString());
                         dos.writeUTF(position.getTitle());
                         dos.writeUTF(wrapNull(position.getDescription()));
-                    } );
-                } );
+                    });
+                });
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + type);
@@ -86,6 +111,15 @@ public class DataStreamSerializer implements StreamSerializer {
             for (int i = 0; i < size; i++) {
                 resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
             }
+
+//            readCollection(dis, () -> {
+//                        String enumValue = dis.readUTF();
+//                        SectionType sectionType = SectionType.valueOf(enumValue);
+//
+//                        Section section = readSection(dis, sectionType);
+//                        resume.addSection(sectionType, section);
+//                    });
+
 
             int sectionSize = dis.readInt();
             for (int i = 0; i < sectionSize; i++) {
@@ -111,47 +145,45 @@ public class DataStreamSerializer implements StreamSerializer {
 
             case ACHIEVEMENT:
             case QUALIFICATIONS:
-                ListSection listSection = new ListSection();
-                int listSize = dis.readInt();
-                for (int i = 0; i < listSize; i++) {
-                    listSection.getList().add(dis.readUTF());
-                }
-                return listSection;
+                ListSection listSection = new ListSection(readCollection(dis, (ThrowingSupplier) dis::readUTF));
+
+
+//                ListSection listSection = new ListSection();
+//                int listSize = dis.readInt();
+//                for (int i = 0; i < listSize; i++) {
+//                    listSection.getList().add(dis.readUTF());
+//                }
+//                return listSection;
 
             case EDUCATION:
             case EXPERIENCE:
-                OrganizationSection organizationSection = new OrganizationSection();
-                int list2Size = dis.readInt();
-                for (int i = 0; i < list2Size; i++) {
-                    String name = dis.readUTF();
-                    String url = unwrapNull(dis.readUTF());
-
-                    Organization organization = new Organization(name, url);
-                    int size2 = dis.readInt();
-                    List<Organization.Position> positions = new ArrayList<>(size2); //
-                    for (int y = 0; y < size2; y++) {
-                        YearMonth start = YearMonth.parse(dis.readUTF());
-                        YearMonth end = YearMonth.parse(dis.readUTF());
-                        String title = dis.readUTF();
-                        String desc = unwrapNull(dis.readUTF());
-                        Organization.Position position = new Organization.Position(start, end, title, desc);
-                        organization.addRecord(position);
-                    }
-                    organizationSection.getList().add(organization);
-                }
-                return organizationSection;
-
+                OrganizationSection section = new OrganizationSection(readCollection(dis, () -> {
+                    Organization organization = new Organization(
+                            dis.readUTF(),
+                            unwrapNull(dis.readUTF()),
+                            readCollection(dis, () -> {
+                                Organization.Position position = new Organization.Position(
+                                        YearMonth.parse(dis.readUTF()),
+                                        YearMonth.parse(dis.readUTF()),
+                                        dis.readUTF(),
+                                        unwrapNull(dis.readUTF()));
+                                return position;
+                            }));
+                    return organization;
+                }));
+                return section;
             default:
                 throw new IllegalStateException("Unexpected value: " + sectionType);
         }
     }
 
+
     private String wrapNull(String data) {
-        return data == null ? "NULLOBJECT" : data;
+        return data == null ? "" : data;
     }
 
     private String unwrapNull(String data) {
-        return data.equals("NULLOBJECT") ? null : data;
+        return data.equals("") ? null : data;
     }
 }
 
