@@ -81,12 +81,12 @@ public class DataStreamSerializer implements StreamSerializer {
             String fullName = dis.readUTF();
             Resume resume = new Resume(uuid, fullName);
 
-            readCollection(dis, () -> {
+            readSequence(dis, () -> {
                 resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
-                return new ArrayList(); // resume.getSections();  // resume.getCollections();   WHATEVER!
+                return 1; // new Object(); // ArrayList(); // resume.getSections();  // resume.getCollections();   WHATEVER!
             });
 
-            readCollection(dis, () -> {
+            readSequence(dis, () -> {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
 
                 Section section = readSection(dis, sectionType);
@@ -150,6 +150,13 @@ public class DataStreamSerializer implements StreamSerializer {
             list.add(supplier.get());
         }
         return list;
+    }
+
+    private <T> void readSequence(DataInputStream dis, ThrowingSupplier<? extends T> supplier) throws IOException {
+        int size = dis.readInt();
+        for (int i = 0; i < size; i++) {
+            supplier.get();
+        }
     }
 
 
