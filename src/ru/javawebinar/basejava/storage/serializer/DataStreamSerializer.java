@@ -10,16 +10,6 @@ import java.util.*;
 public class DataStreamSerializer implements StreamSerializer {
 
     @FunctionalInterface
-    interface FancyConsumer<T> extends ThrowingConsumer<T>{
-        static<T> FancyConsumer<T> exceptionWrappingBlock(FancyConsumer<T> b) {
-            return ex -> {
-                try { b.accept(ex); }
-                catch (Exception e) { throw new RuntimeException(e); }
-            };
-        }
-    }
-
-    @FunctionalInterface
     interface ThrowingConsumer<T> {
         void accept(T t) throws IOException;
     }
@@ -101,7 +91,7 @@ public class DataStreamSerializer implements StreamSerializer {
 
                 Section section = readSection(dis, sectionType);
                 resume.addSection(sectionType, section);
-                return new ArrayList(); // resume.getSections();  WHATEVER!!  Just to comply with the Java compiler
+                return null; //new ArrayList(); // resume.getSections();  WHATEVER!!  Just to comply with the Java compiler
             });
 
             return resume;
@@ -145,15 +135,11 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
 
-    private <T> void writeCollection(DataOutputStream dos, Collection<T> collection, FancyConsumer<? super T> action)  {
+    private <T> void writeCollection(DataOutputStream dos, Collection<T> collection, ThrowingConsumer<? super T> action) throws IOException {
         Objects.requireNonNull(action);
-        try {
-            dos.writeInt(collection.size());
-            for (T t : collection) {
-                action.accept(t);
-            }
-        } catch (IOException e) {
-
+        dos.writeInt(collection.size());
+        for (T t : collection) {
+            action.accept(t);
         }
     }
 
