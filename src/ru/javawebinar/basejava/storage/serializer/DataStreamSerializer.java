@@ -1,15 +1,23 @@
 package ru.javawebinar.basejava.storage.serializer;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import ru.javawebinar.basejava.model.*;
 
 import java.io.*;
 import java.time.YearMonth;
 import java.util.*;
-import java.util.function.Supplier;
 
 
 public class DataStreamSerializer implements StreamSerializer {
+
+    @FunctionalInterface
+    interface FancyConsumer<T> extends ThrowingConsumer<T>{
+        static<T> FancyConsumer<T> exceptionWrappingBlock(FancyConsumer<T> b) {
+            return ex -> {
+                try { b.accept(ex); }
+                catch (Exception e) { throw new RuntimeException(e); }
+            };
+        }
+    }
 
     @FunctionalInterface
     interface ThrowingConsumer<T> {
@@ -20,31 +28,6 @@ public class DataStreamSerializer implements StreamSerializer {
     interface ThrowingSupplier<T> {
         T get() throws IOException;
     }
-
-    private <T> void writeCollection(DataOutputStream dos, Collection<T> collection, ThrowingConsumer<? super T> action) throws IOException {
-        Objects.requireNonNull(action);
-        dos.writeInt(collection.size());
-        for (T t : collection) {
-            action.accept(t);
-        }
-    }
-
-//    private String readString(DataInputStream dis, ThrowingSupplier<String> supplier) throws IOException {
-//        int size = dis.readInt();
-//        for (int i = 0; i < size; i++) {
-//            return supplier.get();
-//        }
-//    }
-
-    private <T> List<T> readCollection(DataInputStream dis, ThrowingSupplier<? extends T> supplier) throws IOException {
-        int size = dis.readInt();
-        List<T> list = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            list.add(supplier.get());
-        }
-        return list;
-    }
-
 
     @Override
     public void doWrite(Resume r, OutputStream os) throws IOException {
@@ -107,35 +90,26 @@ public class DataStreamSerializer implements StreamSerializer {
             String uuid = dis.readUTF();
             String fullName = dis.readUTF();
             Resume resume = new Resume(uuid, fullName);
-            int size = dis.readInt();
-            for (int i = 0; i < size; i++) {
+
+            readCollection(dis, () -> {
                 resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
-            }
+                return new ArrayList(); // resume.getSections();  // resume.getCollections();   WHATEVER!
+            });
 
-//            readCollection(dis, () -> {
-//                        String enumValue = dis.readUTF();
-//                        SectionType sectionType = SectionType.valueOf(enumValue);
-//
-//                        Section section = readSection(dis, sectionType);
-//                        resume.addSection(sectionType, section);
-//                    });
-
-
-            int sectionSize = dis.readInt();
-            for (int i = 0; i < sectionSize; i++) {
-                String enumValue = dis.readUTF();
-                SectionType sectionType = SectionType.valueOf(enumValue);
+            readCollection(dis, () -> {
+                SectionType sectionType = SectionType.valueOf(dis.readUTF());
 
                 Section section = readSection(dis, sectionType);
                 resume.addSection(sectionType, section);
-            }
+                return new ArrayList(); // resume.getSections();  WHATEVER!!  Just to comply with the Java compiler
+            });
+
             return resume;
         }
     }
 
 
     private Section readSection(DataInputStream dis, SectionType sectionType) throws IOException {
-
         switch (sectionType) {
             case OBJECTIVE:
             case PERSONAL:
@@ -145,19 +119,12 @@ public class DataStreamSerializer implements StreamSerializer {
 
             case ACHIEVEMENT:
             case QUALIFICATIONS:
-                ListSection listSection = new ListSection(readCollection(dis, (ThrowingSupplier) dis::readUTF));
-
-
-//                ListSection listSection = new ListSection();
-//                int listSize = dis.readInt();
-//                for (int i = 0; i < listSize; i++) {
-//                    listSection.getList().add(dis.readUTF());
-//                }
-//                return listSection;
+                ListSection listSection = new ListSection(readCollection(dis, dis::readUTF));
+                return listSection;
 
             case EDUCATION:
             case EXPERIENCE:
-                OrganizationSection section = new OrganizationSection(readCollection(dis, () -> {
+                OrganizationSection organizationSection = new OrganizationSection(readCollection(dis, () -> {
                     Organization organization = new Organization(
                             dis.readUTF(),
                             unwrapNull(dis.readUTF()),
@@ -171,10 +138,32 @@ public class DataStreamSerializer implements StreamSerializer {
                             }));
                     return organization;
                 }));
-                return section;
+                return organizationSection;
             default:
                 throw new IllegalStateException("Unexpected value: " + sectionType);
         }
+    }
+
+
+    private <T> void writeCollection(DataOutputStream dos, Collection<T> collection, FancyConsumer<? super T> action)  {
+        Objects.requireNonNull(action);
+        try {
+            dos.writeInt(collection.size());
+            for (T t : collection) {
+                action.accept(t);
+            }
+        } catch (IOException e) {
+
+        }
+    }
+
+    private <T> List<T> readCollection(DataInputStream dis, ThrowingSupplier<? extends T> supplier) throws IOException {
+        int size = dis.readInt();
+        List<T> list = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            list.add(supplier.get());
+        }
+        return list;
     }
 
 
