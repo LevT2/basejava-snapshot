@@ -2,6 +2,7 @@
 /.idea/
 basejava-snapshot.iml
 
-/filedb/
+/storage/
 *.xml
 
+/lib/

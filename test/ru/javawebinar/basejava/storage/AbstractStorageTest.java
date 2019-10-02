@@ -2,6 +2,7 @@ package ru.javawebinar.basejava.storage;
 
 import org.junit.Before;
 import org.junit.Test;
+import ru.javawebinar.basejava.Config;
 import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.OrganizationSection;
@@ -18,7 +19,7 @@ import static ru.javawebinar.basejava.ResumeTestData.*;
 
 public abstract class AbstractStorageTest {
 
-    protected static final File STORAGE_DIR = new File(System.getProperty("user.dir") + "/filedb");
+    protected static final File STORAGE_DIR = Config.get().getStorageDir();
 
     protected Storage storage;
 
@@ -92,7 +93,7 @@ public abstract class AbstractStorageTest {
     @Test
     public void get() throws Exception {
         assertGet(R1);
-        assertPositionListEquals(R1);
+//        assertPositionListEquals(R1);
 //        assertGet(R2);
 //        assertGet(R3);
     }

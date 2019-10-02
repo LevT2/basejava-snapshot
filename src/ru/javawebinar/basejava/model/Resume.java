@@ -103,8 +103,8 @@ public class Resume implements Comparable<Resume>, Serializable {
         return "\nResume{" +
                 "uuid='" + uuid + '\'' +
                 ", fullName='" + fullName + '\'' +
-                "\n\tcontacts=" + contacts +
-                "\n\tsections=" + sections +
+//                "\n\tcontacts=" + contacts +
+//                "\n\tsections=" + sections +
                 '}';
     }
 }
