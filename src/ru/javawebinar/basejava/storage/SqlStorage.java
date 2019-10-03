@@ -39,7 +39,10 @@ public class SqlStorage implements Storage {
              PreparedStatement ps = conn.prepareStatement("UPDATE RESUME SET FULL_NAME =? WHERE UUID =?")) {
             ps.setString(1, resume.getFullName());
             ps.setString(2, resume.getUuid());
-            ps.execute();
+            int updated = ps.executeUpdate();
+            if (0 == updated) {
+                throw new NotExistStorageException("Cannot update not existing uuid: " + resume.getUuid());
+            }
         } catch (SQLException e) {
             throw new StorageException(e);
         }
@@ -53,13 +56,11 @@ public class SqlStorage implements Storage {
             ps.setString(1, resume.getUuid());
             ps.setString(2, resume.getFullName());
             ps.executeUpdate();
-        }
-        catch (PSQLException ex) {
+        } catch (PSQLException ex) {
             if ("23505".equals(ex.getSQLState())) {
                 throw new ExistStorageException(resume.getUuid() + "already exists");
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new StorageException(e);
         }
     }
@@ -106,7 +107,7 @@ public class SqlStorage implements Storage {
             while (rs.next()) {
                 String uuid = rs.getString("uuid").trim();
                 String fullName = rs.getString("full_name");
-                result.add(new Resume(uuid,fullName));
+                result.add(new Resume(uuid, fullName));
             }
         } catch (SQLException e) {
             throw new StorageException(e);
