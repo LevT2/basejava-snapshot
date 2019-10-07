@@ -6,10 +6,10 @@ import java.time.Month;
 
 public class ResumeTestData {
 
-    public static final String UUID_1 = "uuid1";
-    public static final String UUID_2 = "uuid2";
-    public static final String UUID_3 = "uuid3";
-    public static final String UUID_4 = "uuid4";
+    public static final String UUID_1 = String.format("%-36s", "uuid1");
+    public static final String UUID_2 = String.format("%-36s", "uuid2");
+    public static final String UUID_3 = String.format("%-36s", "uuid3");
+    public static final String UUID_4 = String.format("%-36s", "uuid4");
 
     public static final Resume R1;
     public static final Resume R2;
