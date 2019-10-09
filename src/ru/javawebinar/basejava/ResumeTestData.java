@@ -3,13 +3,20 @@ package ru.javawebinar.basejava;
 import ru.javawebinar.basejava.model.*;
 
 import java.time.Month;
+import java.util.UUID;
 
 public class ResumeTestData {
 
-    public static final String UUID_1 = String.format("%-36s", "uuid1");
-    public static final String UUID_2 = String.format("%-36s", "uuid2");
-    public static final String UUID_3 = String.format("%-36s", "uuid3");
-    public static final String UUID_4 = String.format("%-36s", "uuid4");
+    public static final String UUID_1 = UUID.randomUUID().toString(); // = String.format("%-36s", "uuid1");
+    public static final String UUID_2 = UUID.randomUUID().toString(); // = String.format("%-36s", "uuid2");
+    public static final String UUID_3 = UUID.randomUUID().toString(); // = String.format("%-36s", "uuid3");
+    public static final String UUID_4 = UUID.randomUUID().toString(); // = String.format("%-36s", "uuid4");
+
+//    private static final String UUID_1 = UUID.randomUUID().toString();
+//    private static final String UUID_2 = UUID.randomUUID().toString();
+//    private static final String UUID_3 = UUID.randomUUID().toString();
+//    private static final String UUID_4 = UUID.randomUUID().toString();
+
 
     public static final Resume R1;
     public static final Resume R2;
@@ -22,8 +29,8 @@ public class ResumeTestData {
         R3 = new Resume(UUID_3, "Name3");
         R4 = new Resume(UUID_4, "Name4");
 
-//        R1.addContact(ContactType.MAIL, "mail1@ya.ru");
-//        R1.addContact(ContactType.PHONE, "11111");
+        R1.addContact(ContactType.MAIL, "mail1@ya.ru");
+        R1.addContact(ContactType.PHONE, "11111");
 //        R1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
 //        R1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
 //        R1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achivment11", "Achivment12", "Achivment13"));

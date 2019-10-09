@@ -52,15 +52,15 @@ public class Resume implements Comparable<Resume>, Serializable {
         return sections;
     }
 
-    public void  addContact(ContactType contactType, String value) {
+    public void addContact(ContactType contactType, String value) {
         contacts.put(contactType, value);
     }
 
-    public void  addSection(SectionType sectionType, Section section) {
+    public void addSection(SectionType sectionType, Section section) {
         sections.put(sectionType, section);
     }
 
-    public String getContact(ContactType contactType){
+    public String getContact(ContactType contactType) {
         return contacts.get(contactType);
     }
 
@@ -72,7 +72,6 @@ public class Resume implements Comparable<Resume>, Serializable {
     public String getUuid() {
         return uuid;
     }
-
 
 
     @Override
@@ -89,7 +88,7 @@ public class Resume implements Comparable<Resume>, Serializable {
         Resume resume = (Resume) o;
         return uuid.equals(resume.uuid) &&
                 fullName.equals(resume.fullName) &&
-                sections.equals(resume.sections) &&
+//                sections.equals(resume.sections) &&
                 contacts.equals(resume.contacts);
     }
 
@@ -103,8 +102,8 @@ public class Resume implements Comparable<Resume>, Serializable {
         return "\nResume{" +
                 "uuid='" + uuid + '\'' +
                 ", fullName='" + fullName + '\'' +
-//                "\n\tcontacts=" + contacts +
+                "\n\tcontacts=" + contacts;
+    } // +
 //                "\n\tsections=" + sections +
-                '}';
-    }
+//                '}';
 }
