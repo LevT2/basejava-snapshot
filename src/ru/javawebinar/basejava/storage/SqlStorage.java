@@ -8,6 +8,8 @@ import ru.javawebinar.basejava.sql.SqlHelper;
 import java.sql.*;
 import java.util.*;
 
+// TODO implement Section (except OrganizationSection)
+// TODO Join and split ListSection by `\n`
 public class SqlStorage implements Storage {
     public final SqlHelper sqlHelper;
 
